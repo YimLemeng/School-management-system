@@ -49,7 +49,7 @@ public class StudentController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<StudentResponse>> updateStudent(@PathVariable Long id, @Valid @RequestBody StudentUpdateRequest request){
         StudentResponse response = studentService.updateStudent(id, request);
         return ResponseEntity.ok(ApiResponse.success("Student updated successfully", response));
