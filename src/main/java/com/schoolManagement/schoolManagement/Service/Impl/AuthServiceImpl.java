@@ -156,7 +156,7 @@ public class AuthServiceImpl implements AuthService {
         if (fullName != null && !fullName.trim().isEmpty()) {
             String[] parts = fullName.trim().split("\\s+", 2);
             firstName = parts[0];
-            lastName = parts.length > 1 ? parts[1] : parts[0];
+            lastName = parts.length > 1 ? parts[1] : "";
         }
         Student student = Student.builder()
                 .firstName(firstName)
