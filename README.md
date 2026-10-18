@@ -176,20 +176,24 @@ sequenceDiagram
 
 ---
 
-### 4. ដំណើរការសង្ខេបជាភាសាខ្មែរ (Workflow Summary in Khmer)
+### 4. End-to-End Workflow Summary
 
-1. **ការ Login (Authentication)**:
-   - Client (Web/Mobile) ផ្ញើ Username/Email & Password ទៅកាន់ `/api/v1/auth/login`។
-   - `AuthenticationManager` ផ្ទៀងផ្ទាត់ Password ជាមួយ Database ដោយប្រើ `BCrypt`។
-   - បើត្រឹមត្រូវ `JwtTokenProvider` នឹងបង្កើត **JWT Access Token** ដែលមានបង្កប់ Username, Roles និង Expiration រួចចុះហត្ថលេខាឌីជីថល (HMAC-SHA256) ផ្ញើទៅឱ្យ Client រក្សាទុក។
+1. **User Authentication (Login)**:
+   - **Client Request**: The client application (React Web or Flutter Mobile) sends `usernameOrEmail` and `password` via `POST /api/v1/auth/login`.
+   - **Credential Verification**: `AuthenticationManager` delegates to `DaoAuthenticationProvider`, which fetches user credentials through `CustomUserDetailsService` and validates the password against the stored database hash using `BCrypt`.
+   - **Token Generation**: Upon successful authentication, `JwtTokenProvider` crafts a cryptographically signed **JWT Access Token** embedded with the username as subject, user roles (`ROLE_ADMIN`, `ROLE_TEACHER`, `ROLE_STUDENT`), issue timestamp, and expiration time, digitally signed using HMAC-SHA256 (`HS256`).
+   - **Token Storage**: The server returns an `AuthResponse` object containing the `accessToken`. The client securely stores the token in local storage (`SharedPreferences` on mobile, `localStorage` on web) to authenticate subsequent requests.
 
-2. **ការហៅ Request ធម្មតា (Authenticated Client Request)**:
-   - រាល់ពេល Client ត្រូវការទិន្នន័យ (ដូចជា មើលសិស្ស, ចុះឈ្មោះរៀន Course), Client ត្រូវភ្ជាប់ Header `Authorization: Bearer <token>`។
-   - **`JwtAuthenticationFilter`** ស្ទាក់ចាប់ Request មុនគេ រួចពិនិត្យមើល Token៖
-     - បើគ្មាន Token ឬ Token ផុតកំណត់ -> ឆ្លើយតប **401 Unauthorized** ភ្លាមៗ (តាមរយៈ `JwtAuthenticationEntryPoint`)។
-     - បើ Token ត្រឹមត្រូវ -> ស្វែងរក Roles របស់ User រួចបញ្ជូនទៅដាក់ក្នុង `SecurityContextHolder`។
-   - ប្រសិនបើ Role មិនត្រូវនឹងលក្ខខណ្ឌកំណត់ (ឧទាហរណ៍៖ Student ចង់លុបគ្រូ) -> ឆ្លើយតប **403 Forbidden** (តាមរយៈ `JwtAccessDeniedHandler`)។
-   - ប្រសិនបើមានសិទ្ធិគ្រប់គ្រាន់ -> Request ធ្វើដំណើរឆ្លងកាត់ **`DispatcherServlet` -> `Controller` -> `Service` -> `Repository` -> `PostgreSQL`** រួចត្រឡប់ទិន្នន័យជា JSON ទៅកាន់ Client វិញដោយជោគជ័យ។
+2. **Authenticated Client Request Execution**:
+   - **Header Attachment**: For every subsequent protected API call (e.g., managing courses, registering students, enrolling in classes), the client attaches the HTTP header `Authorization: Bearer <token>`.
+   - **Filter Interception**: `JwtAuthenticationFilter` intercepts the request before it reaches any controller:
+     - **Missing or Expired Token**: Immediately rejected with **401 Unauthorized** via `JwtAuthenticationEntryPoint`.
+     - **Valid Token**: Extracts the username and authorities, constructs a `UsernamePasswordAuthenticationToken`, and injects it into `SecurityContextHolder`.
+   - **Role-Based Authorization (RBAC)**: Spring Security verifies endpoint permissions:
+     - **Insufficient Privileges** (e.g., a `STUDENT` attempting to delete a teacher or modify course offerings): Immediately rejected with **403 Forbidden** via `JwtAccessDeniedHandler`.
+     - **Authorized**: The request is routed through the Spring MVC pipeline:
+       `DispatcherServlet` &rarr; `@RestController` &rarr; `@Service` (Business Logic) &rarr; `@Repository` (JPA) &rarr; `PostgreSQL Database`.
+   - **Structured Response**: The business logic executes, database changes are committed, and the controller returns a structured JSON `ApiResponse<T>` with HTTP status code `200 OK` or `201 Created` back to the client.
 
 ---
 
