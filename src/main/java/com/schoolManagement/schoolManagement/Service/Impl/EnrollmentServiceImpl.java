@@ -16,6 +16,7 @@ import com.schoolManagement.schoolManagement.Repository.EnrollmentRepository;
 import com.schoolManagement.schoolManagement.Repository.StudentRepository;
 import com.schoolManagement.schoolManagement.Service.EnrollmentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +62,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
         BigDecimal finalFee = originalFee.subtract(discountAmount);
 
+        EnrollmentStatus initialStatus = request.getStatus() != null ? request.getStatus() : EnrollmentStatus.CONFIRMED;
+
         course.setAvailableSeats(course.getAvailableSeats() - 1);
         courseRepository.save(course);
         Enrollment enrollment = Enrollment.builder()
@@ -70,11 +73,34 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .originalFee(originalFee)
                 .discountAmount(discountAmount)
                 .finalFee(finalFee)
-                .status(EnrollmentStatus.CONFIRMED)
+                .status(initialStatus)
                 .note(request.getNote())
                 .build();
         Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
         return enrollmentMapper.toResponse(savedEnrollment);
+    }
+
+    @Override
+    @Transactional
+    public EnrollmentResponse confirmEnrollment(Long enrollmentId){
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId).orElseThrow(() ->
+                new ResourceNotFoundException("Enrollment",  "id", enrollmentId));
+        if (enrollment.getStatus() == EnrollmentStatus.CONFIRMED){
+            throw new BadRequestException("Enrollment is already confirmed");
+        }
+        if (enrollment.getStatus() == EnrollmentStatus.CANCELLED) {
+            Course course = enrollment.getCourse();
+            if (course.getAvailableSeats() <= 0) {
+                throw new InsufficientCapacityException(
+                        String.format("Course '%s' (%s) has no available seats remaining",
+                                course.getTitle(), course.getCode()));
+            }
+            course.setAvailableSeats(course.getAvailableSeats() - 1);
+            courseRepository.save(course);
+        }
+        enrollment.setStatus(EnrollmentStatus.CONFIRMED);
+        Enrollment updatedEnrollment = enrollmentRepository.save(enrollment);
+        return enrollmentMapper.toResponse(updatedEnrollment);
     }
 
     @Override
@@ -85,12 +111,22 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         if (enrollment.getStatus() == EnrollmentStatus.CANCELLED){
             throw new BadRequestException("Enrollment is already cancelled");
         }
+        if (enrollment.getStatus() == EnrollmentStatus.CONFIRMED){
+            throw new BadRequestException("Confirmed enrollment cannot be cancelled");
+        }
         enrollment.setStatus(EnrollmentStatus.CANCELLED);
         Course course = enrollment.getCourse();
         course.setAvailableSeats(course.getAvailableSeats() + 1);
         courseRepository.save(course);
         Enrollment updatedEnrollment = enrollmentRepository.save(enrollment);
         return enrollmentMapper.toResponse(updatedEnrollment);
+    }
+
+    @Override
+    public List<EnrollmentResponse> getAllEnrollments() {
+        return enrollmentRepository.findAll(Sort.by(Sort.Direction.DESC, "id")).stream()
+                .map(enrollmentMapper::toResponse)
+                .collect(Collectors.toList());
     }
 
     @Override

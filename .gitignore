@@ -46,6 +46,8 @@ Thumbs.db
 
 ### Database Dumps, Backups & Local Data ###
 *.sql
+!src/main/resources/db/migration/*.sql
+!init-db/*.sql
 *.dump
 *.db
 *.sqlite
