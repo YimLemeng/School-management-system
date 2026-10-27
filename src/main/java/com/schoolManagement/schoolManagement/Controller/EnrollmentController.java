@@ -25,11 +25,24 @@ public class EnrollmentController {
         return new ResponseEntity<>(ApiResponse.success("Student enroll successfully", response), HttpStatus.CREATED);
     }
 
+    @RequestMapping(value = "/{id}/confirm", method = {RequestMethod.PATCH, RequestMethod.PUT, RequestMethod.POST})
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+    public ResponseEntity<ApiResponse<EnrollmentResponse>> confirmEnrollment(@PathVariable Long id){
+        EnrollmentResponse response = enrollmentService.confirmEnrollment(id);
+        return ResponseEntity.ok(ApiResponse.success("Enrollment confirmed successfully", response));
+    }
+
     @RequestMapping(value = "/{id}/cancel", method = {RequestMethod.PATCH, RequestMethod.PUT, RequestMethod.POST})
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<EnrollmentResponse>> cancelEnrollment(@PathVariable Long id){
         EnrollmentResponse response = enrollmentService.cancelEnrollment(id);
         return ResponseEntity.ok(ApiResponse.success("Enrollment cancelled successfully", response));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<EnrollmentResponse>>> getAllEnrollments(){
+        List<EnrollmentResponse> response = enrollmentService.getAllEnrollments();
+        return ResponseEntity.ok(ApiResponse.success("All enrollments retrieved successfully", response));
     }
 
     @GetMapping("/student/{studentId}")

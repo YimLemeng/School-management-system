@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface EnrollmentService {
     EnrollmentResponse EnrollmentStudent(EnrollmentRequest request);
+    EnrollmentResponse confirmEnrollment(Long enrollmentId);
     EnrollmentResponse cancelEnrollment(Long enrollmentId);
+    List<EnrollmentResponse> getAllEnrollments();
     List<EnrollmentResponse> getEnrollmentByStudent(Long studentId);
     List<EnrollmentResponse> getEnrollmentByCourse(Long courseId);
 }

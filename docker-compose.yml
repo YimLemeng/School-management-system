@@ -1,18 +1,40 @@
 services:
+  school_db:
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    container_name: school_db
+    restart: "no"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-school_management_db}
+      POSTGRES_USER: ${POSTGRES_USER:-school_management}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - school_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-school_management} -d ${POSTGRES_DB:-school_management_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - school_network
 
-  backend:
+  school_api:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: school_backend
+    container_name: school_api
     restart: "no"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    depends_on:
+      school_db:
+        condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://host.docker.internal:5432/school_management_db}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://school_db:5432/school_management_db}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-school_management}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO:-update}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-${POSTGRES_PASSWORD}}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO:-validate}
       SERVER_PORT: ${SERVER_PORT:-8080}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
@@ -21,18 +43,8 @@ services:
     networks:
       - school_network
 
-  frontend:
-    build:
-      context: ../school-management-frontend
-      dockerfile: Dockerfile
-    container_name: school_frontend
-    restart: "no"
-    depends_on:
-      - backend
-    ports:
-      - "5173:80"
-    networks:
-      - school_network
+volumes:
+  school_db_data:
 
 networks:
   school_network:
