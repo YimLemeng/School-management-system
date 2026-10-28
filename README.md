@@ -210,11 +210,13 @@ sequenceDiagram
 | **Auth** | `POST` | `/api/v1/auth/register` | Register new user (auto student profile) | Public |
 | **Auth** | `GET` | `/api/v1/auth/me` | Fetch authenticated user details | Authenticated |
 | **Auth** | `POST` | `/api/v1/auth/change-password` | Update current user password | Authenticated |
-| **Departments** | `GET` | `/api/v1/departments` | List departments with pagination & search | `ADMIN`, `TEACHER`, `STUDENT` |
+| **Departments** | `GET` | `/api/v1/departments` | List all departments | `ADMIN` |
+| **Departments** | `GET` | `/api/v1/departments/{id}` | Get department by ID | `ADMIN` |
 | **Departments** | `POST` | `/api/v1/departments` | Create new department | `ADMIN` |
 | **Departments** | `PUT` | `/api/v1/departments/{id}` | Update existing department | `ADMIN` |
 | **Departments** | `DELETE`| `/api/v1/departments/{id}` | Delete department | `ADMIN` |
-| **Teachers** | `GET` | `/api/v1/teachers` | List teachers with pagination & filters | `ADMIN`, `TEACHER` |
+| **Teachers** | `GET` | `/api/v1/teachers` | List teachers with pagination & filters | `ADMIN` |
+| **Teachers** | `GET` | `/api/v1/teachers/{id}` | Get teacher profile by ID | `ADMIN` |
 | **Teachers** | `POST` | `/api/v1/teachers` | Create teacher record | `ADMIN` |
 | **Teachers** | `PUT` | `/api/v1/teachers/{id}` | Update teacher profile | `ADMIN` |
 | **Teachers** | `DELETE`| `/api/v1/teachers/{id}` | Delete teacher record | `ADMIN` |
