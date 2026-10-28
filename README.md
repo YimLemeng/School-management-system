@@ -11,11 +11,15 @@ Backend RESTful API service for the School Management System built with Spring B
   - Stateless JWT token authentication
   - User self-registration with automatic student profile provisioning
 - **Academic Management**:
-  - **Departments**: Manage academic faculties & departments
-  - **Teachers**: Manage instructors with detailed teacher profiles
-  - **Courses**: Manage course offerings, credit hours, seat capacities, and teacher assignments
+  - **Departments**: Manage academic faculties & departments (code, name, office location, contact email, active status)
+  - **Teachers**: Manage instructors with department affiliations and academic qualifications
+  - **Courses**: Manage course offerings, credit hours, seat capacities, teacher assignments, and department relationships
   - **Students**: Student records, demographic info, and enrollment tracking
   - **Enrollments**: Transactional course enrollment, automatic seat inventory deduction, discount percentage calculation, receipt generation, and dropping/canceling courses with automatic seat restocking
+  - **Enrollment Confirmation & Business Rules**: Confirm enrollments (`PATCH /api/v1/enrollments/{id}/confirm`); confirmed enrollments are strictly non-cancellable (`BadRequestException`)
+- **Database Migrations & Seeding**:
+  - Flyway migration scripts (`src/main/resources/db/migration/V1__init_schema.sql`) for reliable schema versioning
+  - Automated PostgreSQL container seed scripts (`init-db/01-init.sql`)
 - **Architecture**:
   - Layered Clean Architecture (Controller -> Service -> Repository -> Entity)
   - Data Transfer Objects (DTOs) and ModelMapper
@@ -29,7 +33,8 @@ Backend RESTful API service for the School Management System built with Spring B
 - **Java**: 21 (Eclipse Temurin)
 - **Framework**: Spring Boot 3.x
 - **Database**: PostgreSQL
-- **Security**: Spring Security & JWT (jjwt 0.12.6)
+- **Security**: Spring Security 6 & JWT (jjwt 0.12.6)
+- **Database Migrations**: Flyway
 - **Build Tool**: Maven (`mvnw`)
 - **Containerization**: Docker & Docker Compose
 - **API Documentation**: OpenAPI 3 / Swagger (`/swagger-ui.html`)
@@ -197,6 +202,39 @@ sequenceDiagram
 
 ---
 
+## 📡 REST API Reference
+
+| Module | Method | Endpoint | Description | Access |
+| :--- | :--- | :--- | :--- | :--- |
+| **Auth** | `POST` | `/api/v1/auth/login` | Authenticate user & return JWT token | Public |
+| **Auth** | `POST` | `/api/v1/auth/register` | Register new user (auto student profile) | Public |
+| **Auth** | `GET` | `/api/v1/auth/me` | Fetch authenticated user details | Authenticated |
+| **Auth** | `POST` | `/api/v1/auth/change-password` | Update current user password | Authenticated |
+| **Departments** | `GET` | `/api/v1/departments` | List departments with pagination & search | `ADMIN`, `TEACHER`, `STUDENT` |
+| **Departments** | `POST` | `/api/v1/departments` | Create new department | `ADMIN` |
+| **Departments** | `PUT` | `/api/v1/departments/{id}` | Update existing department | `ADMIN` |
+| **Departments** | `DELETE`| `/api/v1/departments/{id}` | Delete department | `ADMIN` |
+| **Teachers** | `GET` | `/api/v1/teachers` | List teachers with pagination & filters | `ADMIN`, `TEACHER` |
+| **Teachers** | `POST` | `/api/v1/teachers` | Create teacher record | `ADMIN` |
+| **Teachers** | `PUT` | `/api/v1/teachers/{id}` | Update teacher profile | `ADMIN` |
+| **Teachers** | `DELETE`| `/api/v1/teachers/{id}` | Delete teacher record | `ADMIN` |
+| **Students** | `GET` | `/api/v1/students` | List students with search & pagination | `ADMIN`, `TEACHER` |
+| **Students** | `POST` | `/api/v1/students` | Create student record | `ADMIN`, `TEACHER` |
+| **Students** | `PUT` | `/api/v1/students/{id}` | Update student record | `ADMIN`, `TEACHER` |
+| **Students** | `DELETE`| `/api/v1/students/{id}` | Delete student record | `ADMIN` |
+| **Courses** | `GET` | `/api/v1/courses` | List courses with capacity & filters | `ADMIN`, `TEACHER`, `STUDENT` |
+| **Courses** | `POST` | `/api/v1/courses` | Create new course | `ADMIN`, `TEACHER` |
+| **Courses** | `PUT` | `/api/v1/courses/{id}` | Update course details | `ADMIN`, `TEACHER` |
+| **Courses** | `DELETE`| `/api/v1/courses/{id}` | Delete course | `ADMIN` |
+| **Enrollments** | `GET` | `/api/v1/enrollments` | List all enrollments | `ADMIN`, `TEACHER` |
+| **Enrollments** | `GET` | `/api/v1/enrollments/student/{id}`| List enrollments for a student | Authenticated |
+| **Enrollments** | `GET` | `/api/v1/enrollments/course/{id}`| List enrollments for a course | Authenticated |
+| **Enrollments** | `POST` | `/api/v1/enrollments` | Enroll student into a course | Authenticated |
+| **Enrollments** | `PATCH/POST` | `/api/v1/enrollments/{id}/confirm`| Confirm enrollment status | `ADMIN`, `TEACHER` |
+| **Enrollments** | `PATCH/POST` | `/api/v1/enrollments/{id}/cancel` | Cancel enrollment & restock seat | `ADMIN` |
+
+---
+
 ## ⚙️ Getting Started
 
 ### 1. Prerequisites
@@ -208,13 +246,23 @@ Copy the template `.env.example` file to `.env`:
 ```bash
 cp .env.example .env
 ```
-Update your database credentials in `.env`:
+Update your credentials in `.env`:
 ```env
+# Database Credentials
+POSTGRES_DB=school_management_db
+POSTGRES_USER=school_management
+POSTGRES_PASSWORD=your_secure_password_here
+
+# Spring Datasource Configuration (Local Maven execution)
 SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/school_management_db
-SPRING_DATASOURCE_USERNAME=postgres
-SPRING_DATASOURCE_PASSWORD=your_password_here
-SPRING_JPA_HIBERNATE_DDL_AUTO=update
+SPRING_DATASOURCE_USERNAME=school_management
+SPRING_DATASOURCE_PASSWORD=your_secure_password_here
+SPRING_JPA_HIBERNATE_DDL_AUTO=validate
 SERVER_PORT=8080
+
+# JWT Security Configuration
+JWT_SECRET=your_jwt_secret_key_minimum_256_bits_here
+JWT_EXPIRATION_MS=86400000
 ```
 
 ### 3. Run Locally (Maven)
@@ -223,6 +271,7 @@ SERVER_PORT=8080
 ```
 
 ### 4. Run with Docker Compose
+Docker Compose automatically loads `.env` to configure the PostgreSQL database container (`school_db`) with healthchecks and starts the Spring Boot API service (`school_api`):
 ```bash
 docker compose up --build -d
 ```
