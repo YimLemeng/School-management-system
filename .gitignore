@@ -50,5 +50,6 @@ Thumbs.db
 !init-db/*.sql
 *.dump
 *.db
+!Dockerfile.db
 *.sqlite
 *.sqlite3
