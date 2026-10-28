@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile.db
     container_name: school_db
-    restart: "no"
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-school_management_db}
       POSTGRES_USER: ${POSTGRES_USER:-school_management}
@@ -26,7 +26,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: school_api
-    restart: "no"
+    restart: unless-stopped
     depends_on:
       school_db:
         condition: service_healthy
