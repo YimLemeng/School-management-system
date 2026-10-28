@@ -27,12 +27,14 @@ public class TeacherController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<TeacherResponse>> getTeacher(@PathVariable Long id){
         TeacherResponse response = teacherService.getById(id);
         return ResponseEntity.ok(ApiResponse.success("Teacher get successfully", response));
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PageResponse<TeacherResponse>>> getAllTeachers(
             @RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,

@@ -70,7 +70,6 @@ public class SecurityConfig {
                                 "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/v1/auth/login", "/api/v1/auth/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/courses/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/departments/**").permitAll()
                         .anyRequest().authenticated())
 
                 .authenticationProvider(authenticationProvider())

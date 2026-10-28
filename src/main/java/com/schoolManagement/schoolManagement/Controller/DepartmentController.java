@@ -28,12 +28,14 @@ public class DepartmentController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<DepartmentResponse>> getDepartmentById(@PathVariable Long id) {
         DepartmentResponse response = departmentServices.getById(id);
         return ResponseEntity.ok(ApiResponse.success("Department retrieved successfully", response));
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<DepartmentResponse>>> getAllDepartments() {
         List<DepartmentResponse> department =  departmentServices.getAllDepartments();
         return ResponseEntity.ok(ApiResponse.success("Department retrieved successfully", department));
