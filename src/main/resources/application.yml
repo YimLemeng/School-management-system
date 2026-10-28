@@ -35,3 +35,9 @@ app:
   jwt:
     secret: ${JWT_SECRET:default_secret_key_must_be_changed_in_production_32_bytes}
     expiration-milliseconds: ${JWT_EXPIRATION_MS:86400000}
+
+springdoc:
+  api-docs:
+    enabled: ${SWAGGER_ENABLED:false}
+  swagger-ui:
+    enabled: ${SWAGGER_ENABLED:false}
