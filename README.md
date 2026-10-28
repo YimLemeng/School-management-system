@@ -283,6 +283,13 @@ Docker Compose automatically loads `.env` to configure the PostgreSQL database c
 docker compose up --build -d
 ```
 
+### 5. Automated Deployment Script (Production VPS)
+To pull the latest code, rebuild containers, and prune unused images automatically:
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+
 ---
 
 ## 🔒 Security & Sensitive Data
