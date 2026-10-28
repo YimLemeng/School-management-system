@@ -2,6 +2,8 @@
 
 Backend RESTful API service for the School Management System built with Spring Boot 3, Spring Data JPA, PostgreSQL, Spring Security 6 with JWT, and Docker.
 
+> 🔗 **Frontend Web Application Repository**: [https://github.com/YimLemeng/School-management-system-web](https://github.com/YimLemeng/School-management-system-web)
+
 ---
 
 ## 🚀 Features
