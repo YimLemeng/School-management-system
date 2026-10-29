@@ -14,7 +14,6 @@ Backend RESTful API service for the School Management System built with Spring B
 | :--- | :--- | :--- | :--- |
 | **Admin** | `admin` / `admin@school.edu.kh` | `admin123` | Full access: Departments, Teachers, Students, Courses, Confirm/Cancel Enrollments |
 | **Teacher** | `teacher` / `teacher@school.edu.kh` | `teacher123` | Instructor access: Manage students, view courses, confirm enrollments |
-| **Student** | `student` / `student@school.edu.kh` | `student123` | Student access: Browse courses, self-enroll in courses, view profile |
 
 ---
 
