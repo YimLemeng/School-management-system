@@ -40,7 +40,7 @@ services:
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
       SWAGGER_ENABLED: ${SWAGGER_ENABLED:-false}
     ports:
-      - "8080:8080"
+      - "127.0.0.1:${APP_PORT:-8080}:8080"
     networks:
       - school_network
 
