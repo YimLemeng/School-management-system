@@ -2,7 +2,19 @@
 
 Backend RESTful API service for the School Management System built with Spring Boot 3, Spring Data JPA, PostgreSQL, Spring Security 6 with JWT, and Docker.
 
+> 🌐 **Live Demo (Frontend Web App)**: [https://school-management-system-web.yimlemeng.workers.dev](https://school-management-system-web.yimlemeng.workers.dev)  
+> ⚙️ **Live API Base URL (Backend)**: [https://lemeng-school-api.duckdns.org/api/v1](https://lemeng-school-api.duckdns.org/api/v1)  
 > 🔗 **Frontend Web Application Repository**: [https://github.com/YimLemeng/School-management-system-web](https://github.com/YimLemeng/School-management-system-web)
+
+---
+
+## 🔑 Demo Accounts (Live Production)
+
+| Role | Username / Email | Password | Access & Permissions |
+| :--- | :--- | :--- | :--- |
+| **Admin** | `admin` / `admin@school.edu.kh` | `admin123` | Full access: Departments, Teachers, Students, Courses, Confirm/Cancel Enrollments |
+| **Teacher** | `teacher` / `teacher@school.edu.kh` | `teacher123` | Instructor access: Manage students, view courses, confirm enrollments |
+| **Student** | `student` / `student@school.edu.kh` | `student123` | Student access: Browse courses, self-enroll in courses, view profile |
 
 ---
 
