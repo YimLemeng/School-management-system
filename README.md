@@ -2,8 +2,7 @@
 
 Backend RESTful API service for the School Management System built with Spring Boot 3, Spring Data JPA, PostgreSQL, Spring Security 6 with JWT, and Docker.
 
-> 🌐 **Live Demo (Frontend Web App)**: [https://school-management-system-web.yimlemeng.workers.dev](https://school-management-system-web.yimlemeng.workers.dev)  
-> ⚙️ **Live API Base URL (Backend)**: [https://lemeng-school-api.duckdns.org/api/v1](https://lemeng-school-api.duckdns.org/api/v1)  
+> 🌐 **Live Demo Application**: [https://school-management-system-web.yimlemeng.workers.dev](https://school-management-system-web.yimlemeng.workers.dev)  
 > 🔗 **Frontend Web Application Repository**: [https://github.com/YimLemeng/School-management-system-web](https://github.com/YimLemeng/School-management-system-web)
 
 ---
