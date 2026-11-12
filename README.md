@@ -30,8 +30,7 @@ Backend RESTful API service for the School Management System built with Spring B
   - **Enrollments**: Transactional course enrollment, automatic seat inventory deduction, discount percentage calculation, receipt generation, and dropping/canceling courses with automatic seat restocking
   - **Enrollment Confirmation & Business Rules**: Confirm enrollments (`PATCH /api/v1/enrollments/{id}/confirm`); confirmed enrollments are strictly non-cancellable (`BadRequestException`)
 - **Database Migrations & Seeding**:
-  - Flyway migration scripts (`src/main/resources/db/migration/V1__init_schema.sql`) for reliable schema versioning
-  - Automated PostgreSQL container seed scripts (`init-db/01-init.sql`)
+  - Flyway migration scripts (`src/main/resources/db/migration/V1__init_schema.sql`, `V2__seed_default_users.sql`) for reliable schema versioning and automated default credential seeding
 - **Architecture**:
   - Layered Clean Architecture (Controller -> Service -> Repository -> Entity)
   - Data Transfer Objects (DTOs) and ModelMapper
