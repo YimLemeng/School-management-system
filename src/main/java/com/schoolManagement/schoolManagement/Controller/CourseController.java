@@ -36,16 +36,18 @@ public class CourseController {
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<CourseResponse>>> getAllCourses(
             @RequestParam(defaultValue = "0") int pageNo,
-            @RequestParam(defaultValue = "10") int PageSize,
+            @RequestParam(name = "pageSize", required = false) Integer pageSize,
+            @RequestParam(name = "PageSize", required = false) Integer PageSize,
             @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(defaultValue = "desc") String sortDir,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) Long teacherId,
-            @RequestParam(required = false)BigDecimal maxFee,
+            @RequestParam(required = false) BigDecimal maxFee,
             @RequestParam(required = false) Boolean availableOnly
     ){
+        int resolvedPageSize = pageSize != null ? pageSize : (PageSize != null ? PageSize : 50);
         PageResponse<CourseResponse> response = courseService.getAllCourses(
-                pageNo, PageSize, sortBy, sortDir, search, teacherId, maxFee, availableOnly);
+                pageNo, resolvedPageSize, sortBy, sortDir, search, teacherId, maxFee, availableOnly);
         return ResponseEntity.ok(ApiResponse.success("Course found successfully", response));
     }
 
